@@ -1,0 +1,4 @@
+*.int
+*.idy
+*.obj
+/New_Configuration.bin/

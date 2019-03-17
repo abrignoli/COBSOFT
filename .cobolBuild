@@ -1,0 +1,741 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="Cobol" default="cobolbuild" basedir="." xmlns:ac="antlib:net.sf.antcontrib">
+	<typedef name="mffilelist" classname="com.microfocus.ant.TypeFileList"/>
+	<typedef name="mfdirlist" classname="com.microfocus.ant.TypeDirectiveList"/>
+	<typedef name="mfdestfilelist" classname="com.microfocus.ant.TypeDestinationFileList"/>
+	<taskdef name="cobol" classname="com.microfocus.ant.TaskCobol"/>
+	<taskdef name="cobolclean" classname="com.microfocus.ant.TaskCobolClean"/>
+	<taskdef name="cobollink" classname="com.microfocus.ant.TaskCobolLink"/>
+	<taskdef uri="antlib:net.sf.antcontrib" resource="net/sf/antcontrib/antlib.xml" classpath="lib/ant-contrib-1.0b3.jar"/>
+	<!--  ******************************  -->
+	<!--  * OS-specific initialisation *  -->
+	<!--  ******************************  -->
+	<target name="os.init">
+		<condition property="windows">
+			<os family="windows"/>
+		</condition>
+		<condition property="unix">
+			<os family="unix"/>
+		</condition>
+		<property name="failOnError" value="false"/>
+		<property name="cobolFailOnError" value="${failOnError}"/>
+		<property name="cobollinkFailOnError" value="${failOnError}"/>
+	</target>
+	<target name="os.init.windows" if="windows">
+		<property name="dllext" value=".dll"/>
+		<property name="exeext" value=".exe"/>
+		<property name="objext" value=".obj"/>
+		<property name="equalsInDir" value="="/>
+		<property name="pathVar.pS" value=";"/>
+		<property name="shell" value="cmd"/>
+		<property name="shell.ext" value=".bat"/>
+		<property name="shell.arg" value="/c"/>
+		<property name="script.header" value="@rem MS-DOS Batch File"/>
+	</target>
+	<target name="os.init.unix" if="unix">
+		<property name="dllext" value=".so"/>
+		<property name="exeext" value=""/>
+		<property name="objext" value=".o"/>
+		<property name="equalsInDir" value="="/>
+		<property name="pathVar.pS" value=":"/>
+		<property name="shell" value="sh"/>
+		<property name="shell.ext" value=".sh"/>
+		<property name="shell.arg" value="-c"/>
+		<property name="script.header" value="#!/bin/sh"/>
+	</target>
+	<!--  *****************************  -->
+	<!--  * COBOL compiler directives *  -->
+	<!--  *****************************  -->
+	<!-- cobol_directive_set_1 -->
+	<mfdirlist id="cobol_directive_set_1">
+		<directive name="DIALECT" value="MF"/>
+		<directive name="COPYEXT" value="cpy,cbl"/>
+		<directive name="SOURCEFORMAT" value="fixed"/>
+		<directive name="CHARSET" value="ASCII"/>
+		<directive name="WARNING" value="1"/>
+		<directive name="MAX-ERROR" value="100"/>
+		<directive name="SOURCETABSTOP" value="4"/>
+	</mfdirlist>
+	<!--  **********************  -->
+	<!--  * COBOL source files *  -->
+	<!--  **********************  -->
+	<!-- cobol_file_set_1 -->
+	<mffilelist type="srcfile" id="cobol_file_set_1" srcdir="${basedir}">
+		<file name="ProgramaPrincipal.cbl"/>
+		<file srcdir="fontes" name="CS00000F.cbl"/>
+		<file srcdir="fontes" name="CS00000M.cbl"/>
+		<file srcdir="fontes" name="CS00000S.cbl"/>
+		<file srcdir="fontes" name="CS00001M.cbl"/>
+		<file srcdir="fontes" name="CS00001S.cbl"/>
+		<file srcdir="fontes" name="CS00002M.cbl"/>
+		<file srcdir="fontes" name="CS00002S.cbl"/>
+		<file srcdir="fontes" name="CS00003M.cbl"/>
+		<file srcdir="fontes" name="CS00003S.cbl"/>
+		<file srcdir="fontes" name="CS00004S.cbl"/>
+		<file srcdir="fontes" name="CS00005S.cbl"/>
+		<file srcdir="fontes" name="CS00006S.cbl"/>
+		<file srcdir="fontes" name="CS00100S.cbl"/>
+		<file srcdir="fontes" name="CS00101S.cbl"/>
+		<file srcdir="fontes" name="CS00103S.cbl"/>
+		<file srcdir="fontes" name="CS00104S.cbl"/>
+		<file srcdir="fontes" name="CS00105S.cbl"/>
+		<file srcdir="fontes" name="CS00106S.cbl"/>
+		<file srcdir="fontes" name="CS10001C.cbl"/>
+		<file srcdir="fontes" name="CS10001P.cbl"/>
+		<file srcdir="fontes" name="CS10002C.cbl"/>
+		<file srcdir="fontes" name="CS10003C.cbl"/>
+		<file srcdir="fontes" name="CS10004C.cbl"/>
+		<file srcdir="fontes" name="CS10005C.cbl"/>
+		<file srcdir="fontes" name="CS10006C.cbl"/>
+		<file srcdir="fontes" name="CS10007C.cbl"/>
+		<file srcdir="fontes" name="CS10008C.cbl"/>
+		<file srcdir="fontes" name="CS10009C.cbl"/>
+		<file srcdir="fontes" name="CS10010C.cbl"/>
+		<file srcdir="fontes" name="CS10011C.cbl"/>
+		<file srcdir="fontes" name="CS10012C.cbl"/>
+		<file srcdir="fontes" name="CS10013C.cbl"/>
+		<file srcdir="fontes" name="CS10014C.cbl"/>
+		<file srcdir="fontes" name="CS10015C.cbl"/>
+		<file srcdir="fontes" name="CS10016C.cbl"/>
+		<file srcdir="fontes" name="CS10017C.cbl"/>
+		<file srcdir="fontes" name="CS10018C.cbl"/>
+		<file srcdir="fontes" name="CS30001C.cbl"/>
+		<file srcdir="fontes" name="CS30003C.cbl"/>
+		<file srcdir="fontes" name="CS20003C.cbl"/>
+		<file srcdir="fontes" name="CS30002C.cbl"/>
+		<file srcdir="fontes" name="CS20001C.cbl"/>
+		<file srcdir="fontes" name="CS20002C.cbl"/>
+		<file srcdir="template" name="ProgramaTemplate.cbl"/>
+	</mffilelist>
+	<!-- COBOL copybook locations -->
+	<mffilelist id="cobol.copybook.locations">
+		<path type="copybook" name="${Cobol}"/>
+		<path type="copybook" name="${Cobol}/cgi"/>
+		<path type="copybook" name="${Cobol}/configuracao"/>
+		<path type="copybook" name="${Cobol}/cpy"/>
+		<path type="copybook" name="${Cobol}/fontes"/>
+		<path type="copybook" name="${Cobol}/template"/>
+	</mffilelist>
+	<!--  ****************************************  -->
+	<!--  * COBOL Source Files and Directive Set *  -->
+	<!--  ****************************************  -->
+	<!-- dirset.New_Configuration -->
+	<mfdirlist id="dirset.New_Configuration.C:\Cobol\Cobol\ProgramaPrincipal.cbl" refid="cobol_directive_set_1"/>
+	<mffilelist refid="cobol.copybook.locations"/>
+	<target name="FileCompile.New_Configuration.C:\Cobol\Cobol\ProgramaPrincipal.cbl" depends="init">
+		<cobol destdir="${basedir}/New_Configuration.bin" is64bit="false" threadedRts="true" forceCompile="${forceCompile}" failonerror="${cobolFailOnError}" debug="true" desttype="obj">
+			<mffilelist refid="cobol.copybook.locations"/>
+			<mfdirlist refid="dirset.New_Configuration.${filename}"/>
+			<mffilelist type="srcfile" srcdir="${basedir}">
+				<file name="${filename}"/>
+			</mffilelist>
+		</cobol>
+	</target>
+	<mfdirlist id="dirset.New_Configuration.C:\Cobol\Cobol\fontes\CS00000F.cbl" refid="cobol_directive_set_1"/>
+	<mffilelist refid="cobol.copybook.locations"/>
+	<target name="FileCompile.New_Configuration.C:\Cobol\Cobol\fontes\CS00000F.cbl" depends="init">
+		<cobol destdir="${basedir}/New_Configuration.bin" is64bit="false" threadedRts="true" forceCompile="${forceCompile}" failonerror="${cobolFailOnError}" debug="true" desttype="obj">
+			<mffilelist refid="cobol.copybook.locations"/>
+			<mfdirlist refid="dirset.New_Configuration.${filename}"/>
+			<mffilelist type="srcfile" srcdir="${basedir}">
+				<file name="${filename}"/>
+			</mffilelist>
+		</cobol>
+	</target>
+	<mfdirlist id="dirset.New_Configuration.C:\Cobol\Cobol\fontes\CS00000M.cbl" refid="cobol_directive_set_1"/>
+	<mffilelist refid="cobol.copybook.locations"/>
+	<target name="FileCompile.New_Configuration.C:\Cobol\Cobol\fontes\CS00000M.cbl" depends="init">
+		<cobol destdir="${basedir}/New_Configuration.bin" is64bit="false" threadedRts="true" forceCompile="${forceCompile}" failonerror="${cobolFailOnError}" debug="true" desttype="obj">
+			<mffilelist refid="cobol.copybook.locations"/>
+			<mfdirlist refid="dirset.New_Configuration.${filename}"/>
+			<mffilelist type="srcfile" srcdir="${basedir}">
+				<file name="${filename}"/>
+			</mffilelist>
+		</cobol>
+	</target>
+	<mfdirlist id="dirset.New_Configuration.C:\Cobol\Cobol\fontes\CS00000S.cbl" refid="cobol_directive_set_1"/>
+	<mffilelist refid="cobol.copybook.locations"/>
+	<target name="FileCompile.New_Configuration.C:\Cobol\Cobol\fontes\CS00000S.cbl" depends="init">
+		<cobol destdir="${basedir}/New_Configuration.bin" is64bit="false" threadedRts="true" forceCompile="${forceCompile}" failonerror="${cobolFailOnError}" debug="true" desttype="obj">
+			<mffilelist refid="cobol.copybook.locations"/>
+			<mfdirlist refid="dirset.New_Configuration.${filename}"/>
+			<mffilelist type="srcfile" srcdir="${basedir}">
+				<file name="${filename}"/>
+			</mffilelist>
+		</cobol>
+	</target>
+	<mfdirlist id="dirset.New_Configuration.C:\Cobol\Cobol\fontes\CS00001M.cbl" refid="cobol_directive_set_1"/>
+	<mffilelist refid="cobol.copybook.locations"/>
+	<target name="FileCompile.New_Configuration.C:\Cobol\Cobol\fontes\CS00001M.cbl" depends="init">
+		<cobol destdir="${basedir}/New_Configuration.bin" is64bit="false" threadedRts="true" forceCompile="${forceCompile}" failonerror="${cobolFailOnError}" debug="true" desttype="obj">
+			<mffilelist refid="cobol.copybook.locations"/>
+			<mfdirlist refid="dirset.New_Configuration.${filename}"/>
+			<mffilelist type="srcfile" srcdir="${basedir}">
+				<file name="${filename}"/>
+			</mffilelist>
+		</cobol>
+	</target>
+	<mfdirlist id="dirset.New_Configuration.C:\Cobol\Cobol\fontes\CS00001S.cbl" refid="cobol_directive_set_1"/>
+	<mffilelist refid="cobol.copybook.locations"/>
+	<target name="FileCompile.New_Configuration.C:\Cobol\Cobol\fontes\CS00001S.cbl" depends="init">
+		<cobol destdir="${basedir}/New_Configuration.bin" is64bit="false" threadedRts="true" forceCompile="${forceCompile}" failonerror="${cobolFailOnError}" debug="true" desttype="obj">
+			<mffilelist refid="cobol.copybook.locations"/>
+			<mfdirlist refid="dirset.New_Configuration.${filename}"/>
+			<mffilelist type="srcfile" srcdir="${basedir}">
+				<file name="${filename}"/>
+			</mffilelist>
+		</cobol>
+	</target>
+	<mfdirlist id="dirset.New_Configuration.C:\Cobol\Cobol\fontes\CS00002M.cbl" refid="cobol_directive_set_1"/>
+	<mffilelist refid="cobol.copybook.locations"/>
+	<target name="FileCompile.New_Configuration.C:\Cobol\Cobol\fontes\CS00002M.cbl" depends="init">
+		<cobol destdir="${basedir}/New_Configuration.bin" is64bit="false" threadedRts="true" forceCompile="${forceCompile}" failonerror="${cobolFailOnError}" debug="true" desttype="obj">
+			<mffilelist refid="cobol.copybook.locations"/>
+			<mfdirlist refid="dirset.New_Configuration.${filename}"/>
+			<mffilelist type="srcfile" srcdir="${basedir}">
+				<file name="${filename}"/>
+			</mffilelist>
+		</cobol>
+	</target>
+	<mfdirlist id="dirset.New_Configuration.C:\Cobol\Cobol\fontes\CS00002S.cbl" refid="cobol_directive_set_1"/>
+	<mffilelist refid="cobol.copybook.locations"/>
+	<target name="FileCompile.New_Configuration.C:\Cobol\Cobol\fontes\CS00002S.cbl" depends="init">
+		<cobol destdir="${basedir}/New_Configuration.bin" is64bit="false" threadedRts="true" forceCompile="${forceCompile}" failonerror="${cobolFailOnError}" debug="true" desttype="obj">
+			<mffilelist refid="cobol.copybook.locations"/>
+			<mfdirlist refid="dirset.New_Configuration.${filename}"/>
+			<mffilelist type="srcfile" srcdir="${basedir}">
+				<file name="${filename}"/>
+			</mffilelist>
+		</cobol>
+	</target>
+	<mfdirlist id="dirset.New_Configuration.C:\Cobol\Cobol\fontes\CS00003M.cbl" refid="cobol_directive_set_1"/>
+	<mffilelist refid="cobol.copybook.locations"/>
+	<target name="FileCompile.New_Configuration.C:\Cobol\Cobol\fontes\CS00003M.cbl" depends="init">
+		<cobol destdir="${basedir}/New_Configuration.bin" is64bit="false" threadedRts="true" forceCompile="${forceCompile}" failonerror="${cobolFailOnError}" debug="true" desttype="obj">
+			<mffilelist refid="cobol.copybook.locations"/>
+			<mfdirlist refid="dirset.New_Configuration.${filename}"/>
+			<mffilelist type="srcfile" srcdir="${basedir}">
+				<file name="${filename}"/>
+			</mffilelist>
+		</cobol>
+	</target>
+	<mfdirlist id="dirset.New_Configuration.C:\Cobol\Cobol\fontes\CS00003S.cbl" refid="cobol_directive_set_1"/>
+	<mffilelist refid="cobol.copybook.locations"/>
+	<target name="FileCompile.New_Configuration.C:\Cobol\Cobol\fontes\CS00003S.cbl" depends="init">
+		<cobol destdir="${basedir}/New_Configuration.bin" is64bit="false" threadedRts="true" forceCompile="${forceCompile}" failonerror="${cobolFailOnError}" debug="true" desttype="obj">
+			<mffilelist refid="cobol.copybook.locations"/>
+			<mfdirlist refid="dirset.New_Configuration.${filename}"/>
+			<mffilelist type="srcfile" srcdir="${basedir}">
+				<file name="${filename}"/>
+			</mffilelist>
+		</cobol>
+	</target>
+	<mfdirlist id="dirset.New_Configuration.C:\Cobol\Cobol\fontes\CS00004S.cbl" refid="cobol_directive_set_1"/>
+	<mffilelist refid="cobol.copybook.locations"/>
+	<target name="FileCompile.New_Configuration.C:\Cobol\Cobol\fontes\CS00004S.cbl" depends="init">
+		<cobol destdir="${basedir}/New_Configuration.bin" is64bit="false" threadedRts="true" forceCompile="${forceCompile}" failonerror="${cobolFailOnError}" debug="true" desttype="obj">
+			<mffilelist refid="cobol.copybook.locations"/>
+			<mfdirlist refid="dirset.New_Configuration.${filename}"/>
+			<mffilelist type="srcfile" srcdir="${basedir}">
+				<file name="${filename}"/>
+			</mffilelist>
+		</cobol>
+	</target>
+	<mfdirlist id="dirset.New_Configuration.C:\Cobol\Cobol\fontes\CS00005S.cbl" refid="cobol_directive_set_1"/>
+	<mffilelist refid="cobol.copybook.locations"/>
+	<target name="FileCompile.New_Configuration.C:\Cobol\Cobol\fontes\CS00005S.cbl" depends="init">
+		<cobol destdir="${basedir}/New_Configuration.bin" is64bit="false" threadedRts="true" forceCompile="${forceCompile}" failonerror="${cobolFailOnError}" debug="true" desttype="obj">
+			<mffilelist refid="cobol.copybook.locations"/>
+			<mfdirlist refid="dirset.New_Configuration.${filename}"/>
+			<mffilelist type="srcfile" srcdir="${basedir}">
+				<file name="${filename}"/>
+			</mffilelist>
+		</cobol>
+	</target>
+	<mfdirlist id="dirset.New_Configuration.C:\Cobol\Cobol\fontes\CS00006S.cbl" refid="cobol_directive_set_1"/>
+	<mffilelist refid="cobol.copybook.locations"/>
+	<target name="FileCompile.New_Configuration.C:\Cobol\Cobol\fontes\CS00006S.cbl" depends="init">
+		<cobol destdir="${basedir}/New_Configuration.bin" is64bit="false" threadedRts="true" forceCompile="${forceCompile}" failonerror="${cobolFailOnError}" debug="true" desttype="obj">
+			<mffilelist refid="cobol.copybook.locations"/>
+			<mfdirlist refid="dirset.New_Configuration.${filename}"/>
+			<mffilelist type="srcfile" srcdir="${basedir}">
+				<file name="${filename}"/>
+			</mffilelist>
+		</cobol>
+	</target>
+	<mfdirlist id="dirset.New_Configuration.C:\Cobol\Cobol\fontes\CS00100S.cbl" refid="cobol_directive_set_1"/>
+	<mffilelist refid="cobol.copybook.locations"/>
+	<target name="FileCompile.New_Configuration.C:\Cobol\Cobol\fontes\CS00100S.cbl" depends="init">
+		<cobol destdir="${basedir}/New_Configuration.bin" is64bit="false" threadedRts="true" forceCompile="${forceCompile}" failonerror="${cobolFailOnError}" debug="true" desttype="obj">
+			<mffilelist refid="cobol.copybook.locations"/>
+			<mfdirlist refid="dirset.New_Configuration.${filename}"/>
+			<mffilelist type="srcfile" srcdir="${basedir}">
+				<file name="${filename}"/>
+			</mffilelist>
+		</cobol>
+	</target>
+	<mfdirlist id="dirset.New_Configuration.C:\Cobol\Cobol\fontes\CS00101S.cbl" refid="cobol_directive_set_1"/>
+	<mffilelist refid="cobol.copybook.locations"/>
+	<target name="FileCompile.New_Configuration.C:\Cobol\Cobol\fontes\CS00101S.cbl" depends="init">
+		<cobol destdir="${basedir}/New_Configuration.bin" is64bit="false" threadedRts="true" forceCompile="${forceCompile}" failonerror="${cobolFailOnError}" debug="true" desttype="obj">
+			<mffilelist refid="cobol.copybook.locations"/>
+			<mfdirlist refid="dirset.New_Configuration.${filename}"/>
+			<mffilelist type="srcfile" srcdir="${basedir}">
+				<file name="${filename}"/>
+			</mffilelist>
+		</cobol>
+	</target>
+	<mfdirlist id="dirset.New_Configuration.C:\Cobol\Cobol\fontes\CS00103S.cbl" refid="cobol_directive_set_1"/>
+	<mffilelist refid="cobol.copybook.locations"/>
+	<target name="FileCompile.New_Configuration.C:\Cobol\Cobol\fontes\CS00103S.cbl" depends="init">
+		<cobol destdir="${basedir}/New_Configuration.bin" is64bit="false" threadedRts="true" forceCompile="${forceCompile}" failonerror="${cobolFailOnError}" debug="true" desttype="obj">
+			<mffilelist refid="cobol.copybook.locations"/>
+			<mfdirlist refid="dirset.New_Configuration.${filename}"/>
+			<mffilelist type="srcfile" srcdir="${basedir}">
+				<file name="${filename}"/>
+			</mffilelist>
+		</cobol>
+	</target>
+	<mfdirlist id="dirset.New_Configuration.C:\Cobol\Cobol\fontes\CS00104S.cbl" refid="cobol_directive_set_1"/>
+	<mffilelist refid="cobol.copybook.locations"/>
+	<target name="FileCompile.New_Configuration.C:\Cobol\Cobol\fontes\CS00104S.cbl" depends="init">
+		<cobol destdir="${basedir}/New_Configuration.bin" is64bit="false" threadedRts="true" forceCompile="${forceCompile}" failonerror="${cobolFailOnError}" debug="true" desttype="obj">
+			<mffilelist refid="cobol.copybook.locations"/>
+			<mfdirlist refid="dirset.New_Configuration.${filename}"/>
+			<mffilelist type="srcfile" srcdir="${basedir}">
+				<file name="${filename}"/>
+			</mffilelist>
+		</cobol>
+	</target>
+	<mfdirlist id="dirset.New_Configuration.C:\Cobol\Cobol\fontes\CS00105S.cbl" refid="cobol_directive_set_1"/>
+	<mffilelist refid="cobol.copybook.locations"/>
+	<target name="FileCompile.New_Configuration.C:\Cobol\Cobol\fontes\CS00105S.cbl" depends="init">
+		<cobol destdir="${basedir}/New_Configuration.bin" is64bit="false" threadedRts="true" forceCompile="${forceCompile}" failonerror="${cobolFailOnError}" debug="true" desttype="obj">
+			<mffilelist refid="cobol.copybook.locations"/>
+			<mfdirlist refid="dirset.New_Configuration.${filename}"/>
+			<mffilelist type="srcfile" srcdir="${basedir}">
+				<file name="${filename}"/>
+			</mffilelist>
+		</cobol>
+	</target>
+	<mfdirlist id="dirset.New_Configuration.C:\Cobol\Cobol\fontes\CS00106S.cbl" refid="cobol_directive_set_1"/>
+	<mffilelist refid="cobol.copybook.locations"/>
+	<target name="FileCompile.New_Configuration.C:\Cobol\Cobol\fontes\CS00106S.cbl" depends="init">
+		<cobol destdir="${basedir}/New_Configuration.bin" is64bit="false" threadedRts="true" forceCompile="${forceCompile}" failonerror="${cobolFailOnError}" debug="true" desttype="obj">
+			<mffilelist refid="cobol.copybook.locations"/>
+			<mfdirlist refid="dirset.New_Configuration.${filename}"/>
+			<mffilelist type="srcfile" srcdir="${basedir}">
+				<file name="${filename}"/>
+			</mffilelist>
+		</cobol>
+	</target>
+	<mfdirlist id="dirset.New_Configuration.C:\Cobol\Cobol\fontes\CS10001C.cbl" refid="cobol_directive_set_1"/>
+	<mffilelist refid="cobol.copybook.locations"/>
+	<target name="FileCompile.New_Configuration.C:\Cobol\Cobol\fontes\CS10001C.cbl" depends="init">
+		<cobol destdir="${basedir}/New_Configuration.bin" is64bit="false" threadedRts="true" forceCompile="${forceCompile}" failonerror="${cobolFailOnError}" debug="true" desttype="obj">
+			<mffilelist refid="cobol.copybook.locations"/>
+			<mfdirlist refid="dirset.New_Configuration.${filename}"/>
+			<mffilelist type="srcfile" srcdir="${basedir}">
+				<file name="${filename}"/>
+			</mffilelist>
+		</cobol>
+	</target>
+	<mfdirlist id="dirset.New_Configuration.C:\Cobol\Cobol\fontes\CS10001P.cbl" refid="cobol_directive_set_1"/>
+	<mffilelist refid="cobol.copybook.locations"/>
+	<target name="FileCompile.New_Configuration.C:\Cobol\Cobol\fontes\CS10001P.cbl" depends="init">
+		<cobol destdir="${basedir}/New_Configuration.bin" is64bit="false" threadedRts="true" forceCompile="${forceCompile}" failonerror="${cobolFailOnError}" debug="true" desttype="obj">
+			<mffilelist refid="cobol.copybook.locations"/>
+			<mfdirlist refid="dirset.New_Configuration.${filename}"/>
+			<mffilelist type="srcfile" srcdir="${basedir}">
+				<file name="${filename}"/>
+			</mffilelist>
+		</cobol>
+	</target>
+	<mfdirlist id="dirset.New_Configuration.C:\Cobol\Cobol\fontes\CS10002C.cbl" refid="cobol_directive_set_1"/>
+	<mffilelist refid="cobol.copybook.locations"/>
+	<target name="FileCompile.New_Configuration.C:\Cobol\Cobol\fontes\CS10002C.cbl" depends="init">
+		<cobol destdir="${basedir}/New_Configuration.bin" is64bit="false" threadedRts="true" forceCompile="${forceCompile}" failonerror="${cobolFailOnError}" debug="true" desttype="obj">
+			<mffilelist refid="cobol.copybook.locations"/>
+			<mfdirlist refid="dirset.New_Configuration.${filename}"/>
+			<mffilelist type="srcfile" srcdir="${basedir}">
+				<file name="${filename}"/>
+			</mffilelist>
+		</cobol>
+	</target>
+	<mfdirlist id="dirset.New_Configuration.C:\Cobol\Cobol\fontes\CS10003C.cbl" refid="cobol_directive_set_1"/>
+	<mffilelist refid="cobol.copybook.locations"/>
+	<target name="FileCompile.New_Configuration.C:\Cobol\Cobol\fontes\CS10003C.cbl" depends="init">
+		<cobol destdir="${basedir}/New_Configuration.bin" is64bit="false" threadedRts="true" forceCompile="${forceCompile}" failonerror="${cobolFailOnError}" debug="true" desttype="obj">
+			<mffilelist refid="cobol.copybook.locations"/>
+			<mfdirlist refid="dirset.New_Configuration.${filename}"/>
+			<mffilelist type="srcfile" srcdir="${basedir}">
+				<file name="${filename}"/>
+			</mffilelist>
+		</cobol>
+	</target>
+	<mfdirlist id="dirset.New_Configuration.C:\Cobol\Cobol\fontes\CS10004C.cbl" refid="cobol_directive_set_1"/>
+	<mffilelist refid="cobol.copybook.locations"/>
+	<target name="FileCompile.New_Configuration.C:\Cobol\Cobol\fontes\CS10004C.cbl" depends="init">
+		<cobol destdir="${basedir}/New_Configuration.bin" is64bit="false" threadedRts="true" forceCompile="${forceCompile}" failonerror="${cobolFailOnError}" debug="true" desttype="obj">
+			<mffilelist refid="cobol.copybook.locations"/>
+			<mfdirlist refid="dirset.New_Configuration.${filename}"/>
+			<mffilelist type="srcfile" srcdir="${basedir}">
+				<file name="${filename}"/>
+			</mffilelist>
+		</cobol>
+	</target>
+	<mfdirlist id="dirset.New_Configuration.C:\Cobol\Cobol\fontes\CS10005C.cbl" refid="cobol_directive_set_1"/>
+	<mffilelist refid="cobol.copybook.locations"/>
+	<target name="FileCompile.New_Configuration.C:\Cobol\Cobol\fontes\CS10005C.cbl" depends="init">
+		<cobol destdir="${basedir}/New_Configuration.bin" is64bit="false" threadedRts="true" forceCompile="${forceCompile}" failonerror="${cobolFailOnError}" debug="true" desttype="obj">
+			<mffilelist refid="cobol.copybook.locations"/>
+			<mfdirlist refid="dirset.New_Configuration.${filename}"/>
+			<mffilelist type="srcfile" srcdir="${basedir}">
+				<file name="${filename}"/>
+			</mffilelist>
+		</cobol>
+	</target>
+	<mfdirlist id="dirset.New_Configuration.C:\Cobol\Cobol\fontes\CS10006C.cbl" refid="cobol_directive_set_1"/>
+	<mffilelist refid="cobol.copybook.locations"/>
+	<target name="FileCompile.New_Configuration.C:\Cobol\Cobol\fontes\CS10006C.cbl" depends="init">
+		<cobol destdir="${basedir}/New_Configuration.bin" is64bit="false" threadedRts="true" forceCompile="${forceCompile}" failonerror="${cobolFailOnError}" debug="true" desttype="obj">
+			<mffilelist refid="cobol.copybook.locations"/>
+			<mfdirlist refid="dirset.New_Configuration.${filename}"/>
+			<mffilelist type="srcfile" srcdir="${basedir}">
+				<file name="${filename}"/>
+			</mffilelist>
+		</cobol>
+	</target>
+	<mfdirlist id="dirset.New_Configuration.C:\Cobol\Cobol\fontes\CS10007C.cbl" refid="cobol_directive_set_1"/>
+	<mffilelist refid="cobol.copybook.locations"/>
+	<target name="FileCompile.New_Configuration.C:\Cobol\Cobol\fontes\CS10007C.cbl" depends="init">
+		<cobol destdir="${basedir}/New_Configuration.bin" is64bit="false" threadedRts="true" forceCompile="${forceCompile}" failonerror="${cobolFailOnError}" debug="true" desttype="obj">
+			<mffilelist refid="cobol.copybook.locations"/>
+			<mfdirlist refid="dirset.New_Configuration.${filename}"/>
+			<mffilelist type="srcfile" srcdir="${basedir}">
+				<file name="${filename}"/>
+			</mffilelist>
+		</cobol>
+	</target>
+	<mfdirlist id="dirset.New_Configuration.C:\Cobol\Cobol\fontes\CS10008C.cbl" refid="cobol_directive_set_1"/>
+	<mffilelist refid="cobol.copybook.locations"/>
+	<target name="FileCompile.New_Configuration.C:\Cobol\Cobol\fontes\CS10008C.cbl" depends="init">
+		<cobol destdir="${basedir}/New_Configuration.bin" is64bit="false" threadedRts="true" forceCompile="${forceCompile}" failonerror="${cobolFailOnError}" debug="true" desttype="obj">
+			<mffilelist refid="cobol.copybook.locations"/>
+			<mfdirlist refid="dirset.New_Configuration.${filename}"/>
+			<mffilelist type="srcfile" srcdir="${basedir}">
+				<file name="${filename}"/>
+			</mffilelist>
+		</cobol>
+	</target>
+	<mfdirlist id="dirset.New_Configuration.C:\Cobol\Cobol\fontes\CS10009C.cbl" refid="cobol_directive_set_1"/>
+	<mffilelist refid="cobol.copybook.locations"/>
+	<target name="FileCompile.New_Configuration.C:\Cobol\Cobol\fontes\CS10009C.cbl" depends="init">
+		<cobol destdir="${basedir}/New_Configuration.bin" is64bit="false" threadedRts="true" forceCompile="${forceCompile}" failonerror="${cobolFailOnError}" debug="true" desttype="obj">
+			<mffilelist refid="cobol.copybook.locations"/>
+			<mfdirlist refid="dirset.New_Configuration.${filename}"/>
+			<mffilelist type="srcfile" srcdir="${basedir}">
+				<file name="${filename}"/>
+			</mffilelist>
+		</cobol>
+	</target>
+	<mfdirlist id="dirset.New_Configuration.C:\Cobol\Cobol\fontes\CS10010C.cbl" refid="cobol_directive_set_1"/>
+	<mffilelist refid="cobol.copybook.locations"/>
+	<target name="FileCompile.New_Configuration.C:\Cobol\Cobol\fontes\CS10010C.cbl" depends="init">
+		<cobol destdir="${basedir}/New_Configuration.bin" is64bit="false" threadedRts="true" forceCompile="${forceCompile}" failonerror="${cobolFailOnError}" debug="true" desttype="obj">
+			<mffilelist refid="cobol.copybook.locations"/>
+			<mfdirlist refid="dirset.New_Configuration.${filename}"/>
+			<mffilelist type="srcfile" srcdir="${basedir}">
+				<file name="${filename}"/>
+			</mffilelist>
+		</cobol>
+	</target>
+	<mfdirlist id="dirset.New_Configuration.C:\Cobol\Cobol\fontes\CS10011C.cbl" refid="cobol_directive_set_1"/>
+	<mffilelist refid="cobol.copybook.locations"/>
+	<target name="FileCompile.New_Configuration.C:\Cobol\Cobol\fontes\CS10011C.cbl" depends="init">
+		<cobol destdir="${basedir}/New_Configuration.bin" is64bit="false" threadedRts="true" forceCompile="${forceCompile}" failonerror="${cobolFailOnError}" debug="true" desttype="obj">
+			<mffilelist refid="cobol.copybook.locations"/>
+			<mfdirlist refid="dirset.New_Configuration.${filename}"/>
+			<mffilelist type="srcfile" srcdir="${basedir}">
+				<file name="${filename}"/>
+			</mffilelist>
+		</cobol>
+	</target>
+	<mfdirlist id="dirset.New_Configuration.C:\Cobol\Cobol\fontes\CS10012C.cbl" refid="cobol_directive_set_1"/>
+	<mffilelist refid="cobol.copybook.locations"/>
+	<target name="FileCompile.New_Configuration.C:\Cobol\Cobol\fontes\CS10012C.cbl" depends="init">
+		<cobol destdir="${basedir}/New_Configuration.bin" is64bit="false" threadedRts="true" forceCompile="${forceCompile}" failonerror="${cobolFailOnError}" debug="true" desttype="obj">
+			<mffilelist refid="cobol.copybook.locations"/>
+			<mfdirlist refid="dirset.New_Configuration.${filename}"/>
+			<mffilelist type="srcfile" srcdir="${basedir}">
+				<file name="${filename}"/>
+			</mffilelist>
+		</cobol>
+	</target>
+	<mfdirlist id="dirset.New_Configuration.C:\Cobol\Cobol\fontes\CS10013C.cbl" refid="cobol_directive_set_1"/>
+	<mffilelist refid="cobol.copybook.locations"/>
+	<target name="FileCompile.New_Configuration.C:\Cobol\Cobol\fontes\CS10013C.cbl" depends="init">
+		<cobol destdir="${basedir}/New_Configuration.bin" is64bit="false" threadedRts="true" forceCompile="${forceCompile}" failonerror="${cobolFailOnError}" debug="true" desttype="obj">
+			<mffilelist refid="cobol.copybook.locations"/>
+			<mfdirlist refid="dirset.New_Configuration.${filename}"/>
+			<mffilelist type="srcfile" srcdir="${basedir}">
+				<file name="${filename}"/>
+			</mffilelist>
+		</cobol>
+	</target>
+	<mfdirlist id="dirset.New_Configuration.C:\Cobol\Cobol\fontes\CS10014C.cbl" refid="cobol_directive_set_1"/>
+	<mffilelist refid="cobol.copybook.locations"/>
+	<target name="FileCompile.New_Configuration.C:\Cobol\Cobol\fontes\CS10014C.cbl" depends="init">
+		<cobol destdir="${basedir}/New_Configuration.bin" is64bit="false" threadedRts="true" forceCompile="${forceCompile}" failonerror="${cobolFailOnError}" debug="true" desttype="obj">
+			<mffilelist refid="cobol.copybook.locations"/>
+			<mfdirlist refid="dirset.New_Configuration.${filename}"/>
+			<mffilelist type="srcfile" srcdir="${basedir}">
+				<file name="${filename}"/>
+			</mffilelist>
+		</cobol>
+	</target>
+	<mfdirlist id="dirset.New_Configuration.C:\Cobol\Cobol\fontes\CS10015C.cbl" refid="cobol_directive_set_1"/>
+	<mffilelist refid="cobol.copybook.locations"/>
+	<target name="FileCompile.New_Configuration.C:\Cobol\Cobol\fontes\CS10015C.cbl" depends="init">
+		<cobol destdir="${basedir}/New_Configuration.bin" is64bit="false" threadedRts="true" forceCompile="${forceCompile}" failonerror="${cobolFailOnError}" debug="true" desttype="obj">
+			<mffilelist refid="cobol.copybook.locations"/>
+			<mfdirlist refid="dirset.New_Configuration.${filename}"/>
+			<mffilelist type="srcfile" srcdir="${basedir}">
+				<file name="${filename}"/>
+			</mffilelist>
+		</cobol>
+	</target>
+	<mfdirlist id="dirset.New_Configuration.C:\Cobol\Cobol\fontes\CS10016C.cbl" refid="cobol_directive_set_1"/>
+	<mffilelist refid="cobol.copybook.locations"/>
+	<target name="FileCompile.New_Configuration.C:\Cobol\Cobol\fontes\CS10016C.cbl" depends="init">
+		<cobol destdir="${basedir}/New_Configuration.bin" is64bit="false" threadedRts="true" forceCompile="${forceCompile}" failonerror="${cobolFailOnError}" debug="true" desttype="obj">
+			<mffilelist refid="cobol.copybook.locations"/>
+			<mfdirlist refid="dirset.New_Configuration.${filename}"/>
+			<mffilelist type="srcfile" srcdir="${basedir}">
+				<file name="${filename}"/>
+			</mffilelist>
+		</cobol>
+	</target>
+	<mfdirlist id="dirset.New_Configuration.C:\Cobol\Cobol\fontes\CS10017C.cbl" refid="cobol_directive_set_1"/>
+	<mffilelist refid="cobol.copybook.locations"/>
+	<target name="FileCompile.New_Configuration.C:\Cobol\Cobol\fontes\CS10017C.cbl" depends="init">
+		<cobol destdir="${basedir}/New_Configuration.bin" is64bit="false" threadedRts="true" forceCompile="${forceCompile}" failonerror="${cobolFailOnError}" debug="true" desttype="obj">
+			<mffilelist refid="cobol.copybook.locations"/>
+			<mfdirlist refid="dirset.New_Configuration.${filename}"/>
+			<mffilelist type="srcfile" srcdir="${basedir}">
+				<file name="${filename}"/>
+			</mffilelist>
+		</cobol>
+	</target>
+	<mfdirlist id="dirset.New_Configuration.C:\Cobol\Cobol\fontes\CS10018C.cbl" refid="cobol_directive_set_1"/>
+	<mffilelist refid="cobol.copybook.locations"/>
+	<target name="FileCompile.New_Configuration.C:\Cobol\Cobol\fontes\CS10018C.cbl" depends="init">
+		<cobol destdir="${basedir}/New_Configuration.bin" is64bit="false" threadedRts="true" forceCompile="${forceCompile}" failonerror="${cobolFailOnError}" debug="true" desttype="obj">
+			<mffilelist refid="cobol.copybook.locations"/>
+			<mfdirlist refid="dirset.New_Configuration.${filename}"/>
+			<mffilelist type="srcfile" srcdir="${basedir}">
+				<file name="${filename}"/>
+			</mffilelist>
+		</cobol>
+	</target>
+	<mfdirlist id="dirset.New_Configuration.C:\Cobol\Cobol\fontes\CS30001C.cbl" refid="cobol_directive_set_1"/>
+	<mffilelist refid="cobol.copybook.locations"/>
+	<target name="FileCompile.New_Configuration.C:\Cobol\Cobol\fontes\CS30001C.cbl" depends="init">
+		<cobol destdir="${basedir}/New_Configuration.bin" is64bit="false" threadedRts="true" forceCompile="${forceCompile}" failonerror="${cobolFailOnError}" debug="true" desttype="obj">
+			<mffilelist refid="cobol.copybook.locations"/>
+			<mfdirlist refid="dirset.New_Configuration.${filename}"/>
+			<mffilelist type="srcfile" srcdir="${basedir}">
+				<file name="${filename}"/>
+			</mffilelist>
+		</cobol>
+	</target>
+	<mfdirlist id="dirset.New_Configuration.C:\Cobol\Cobol\fontes\CS30003C.cbl" refid="cobol_directive_set_1"/>
+	<mffilelist refid="cobol.copybook.locations"/>
+	<target name="FileCompile.New_Configuration.C:\Cobol\Cobol\fontes\CS30003C.cbl" depends="init">
+		<cobol destdir="${basedir}/New_Configuration.bin" is64bit="false" threadedRts="true" forceCompile="${forceCompile}" failonerror="${cobolFailOnError}" debug="true" desttype="obj">
+			<mffilelist refid="cobol.copybook.locations"/>
+			<mfdirlist refid="dirset.New_Configuration.${filename}"/>
+			<mffilelist type="srcfile" srcdir="${basedir}">
+				<file name="${filename}"/>
+			</mffilelist>
+		</cobol>
+	</target>
+	<mfdirlist id="dirset.New_Configuration.C:\Cobol\Cobol\fontes\CS20003C.cbl" refid="cobol_directive_set_1"/>
+	<mffilelist refid="cobol.copybook.locations"/>
+	<target name="FileCompile.New_Configuration.C:\Cobol\Cobol\fontes\CS20003C.cbl" depends="init">
+		<cobol destdir="${basedir}/New_Configuration.bin" is64bit="false" threadedRts="true" forceCompile="${forceCompile}" failonerror="${cobolFailOnError}" debug="true" desttype="obj">
+			<mffilelist refid="cobol.copybook.locations"/>
+			<mfdirlist refid="dirset.New_Configuration.${filename}"/>
+			<mffilelist type="srcfile" srcdir="${basedir}">
+				<file name="${filename}"/>
+			</mffilelist>
+		</cobol>
+	</target>
+	<mfdirlist id="dirset.New_Configuration.C:\Cobol\Cobol\fontes\CS30002C.cbl" refid="cobol_directive_set_1"/>
+	<mffilelist refid="cobol.copybook.locations"/>
+	<target name="FileCompile.New_Configuration.C:\Cobol\Cobol\fontes\CS30002C.cbl" depends="init">
+		<cobol destdir="${basedir}/New_Configuration.bin" is64bit="false" threadedRts="true" forceCompile="${forceCompile}" failonerror="${cobolFailOnError}" debug="true" desttype="obj">
+			<mffilelist refid="cobol.copybook.locations"/>
+			<mfdirlist refid="dirset.New_Configuration.${filename}"/>
+			<mffilelist type="srcfile" srcdir="${basedir}">
+				<file name="${filename}"/>
+			</mffilelist>
+		</cobol>
+	</target>
+	<mfdirlist id="dirset.New_Configuration.C:\Cobol\Cobol\fontes\CS20001C.cbl" refid="cobol_directive_set_1"/>
+	<mffilelist refid="cobol.copybook.locations"/>
+	<target name="FileCompile.New_Configuration.C:\Cobol\Cobol\fontes\CS20001C.cbl" depends="init">
+		<cobol destdir="${basedir}/New_Configuration.bin" is64bit="false" threadedRts="true" forceCompile="${forceCompile}" failonerror="${cobolFailOnError}" debug="true" desttype="obj">
+			<mffilelist refid="cobol.copybook.locations"/>
+			<mfdirlist refid="dirset.New_Configuration.${filename}"/>
+			<mffilelist type="srcfile" srcdir="${basedir}">
+				<file name="${filename}"/>
+			</mffilelist>
+		</cobol>
+	</target>
+	<mfdirlist id="dirset.New_Configuration.C:\Cobol\Cobol\fontes\CS20002C.cbl" refid="cobol_directive_set_1"/>
+	<mffilelist refid="cobol.copybook.locations"/>
+	<target name="FileCompile.New_Configuration.C:\Cobol\Cobol\fontes\CS20002C.cbl" depends="init">
+		<cobol destdir="${basedir}/New_Configuration.bin" is64bit="false" threadedRts="true" forceCompile="${forceCompile}" failonerror="${cobolFailOnError}" debug="true" desttype="obj">
+			<mffilelist refid="cobol.copybook.locations"/>
+			<mfdirlist refid="dirset.New_Configuration.${filename}"/>
+			<mffilelist type="srcfile" srcdir="${basedir}">
+				<file name="${filename}"/>
+			</mffilelist>
+		</cobol>
+	</target>
+	<mfdirlist id="dirset.New_Configuration.C:\Cobol\Cobol\template\ProgramaTemplate.cbl" refid="cobol_directive_set_1"/>
+	<mffilelist refid="cobol.copybook.locations"/>
+	<target name="FileCompile.New_Configuration.C:\Cobol\Cobol\template\ProgramaTemplate.cbl" depends="init">
+		<cobol destdir="${basedir}/New_Configuration.bin" is64bit="false" threadedRts="true" forceCompile="${forceCompile}" failonerror="${cobolFailOnError}" debug="true" desttype="obj">
+			<mffilelist refid="cobol.copybook.locations"/>
+			<mfdirlist refid="dirset.New_Configuration.${filename}"/>
+			<mffilelist type="srcfile" srcdir="${basedir}">
+				<file name="${filename}"/>
+			</mffilelist>
+		</cobol>
+	</target>
+	<!--  ****************  -->
+	<!--  * Object files *  -->
+	<!--  ****************  -->
+	<!-- Default -->
+	<mffilelist id="cobol.default.object.files" srcdir="${basedir}/${cfgtargetdir}" type="objfile">
+		<file name="ProgramaPrincipal${objext}"/>
+		<file name="CS00000F${objext}"/>
+		<file name="CS00000M${objext}"/>
+		<file name="CS00000S${objext}"/>
+		<file name="CS00001M${objext}"/>
+		<file name="CS00001S${objext}"/>
+		<file name="CS00002M${objext}"/>
+		<file name="CS00002S${objext}"/>
+		<file name="CS00003M${objext}"/>
+		<file name="CS00003S${objext}"/>
+		<file name="CS00004S${objext}"/>
+		<file name="CS00005S${objext}"/>
+		<file name="CS00006S${objext}"/>
+		<file name="CS00100S${objext}"/>
+		<file name="CS00101S${objext}"/>
+		<file name="CS00103S${objext}"/>
+		<file name="CS00104S${objext}"/>
+		<file name="CS00105S${objext}"/>
+		<file name="CS00106S${objext}"/>
+		<file name="CS10001C${objext}"/>
+		<file name="CS10001P${objext}"/>
+		<file name="CS10002C${objext}"/>
+		<file name="CS10003C${objext}"/>
+		<file name="CS10004C${objext}"/>
+		<file name="CS10005C${objext}"/>
+		<file name="CS10006C${objext}"/>
+		<file name="CS10007C${objext}"/>
+		<file name="CS10008C${objext}"/>
+		<file name="CS10009C${objext}"/>
+		<file name="CS10010C${objext}"/>
+		<file name="CS10011C${objext}"/>
+		<file name="CS10012C${objext}"/>
+		<file name="CS10013C${objext}"/>
+		<file name="CS10014C${objext}"/>
+		<file name="CS10015C${objext}"/>
+		<file name="CS10016C${objext}"/>
+		<file name="CS10017C${objext}"/>
+		<file name="CS10018C${objext}"/>
+		<file name="CS30001C${objext}"/>
+		<file name="CS30003C${objext}"/>
+		<file name="CS20003C${objext}"/>
+		<file name="CS30002C${objext}"/>
+		<file name="CS20001C${objext}"/>
+		<file name="CS20002C${objext}"/>
+		<file name="ProgramaTemplate${objext}"/>
+	</mffilelist>
+	<!--  *************************  -->
+	<!--  * Configuration targets *  -->
+	<!--  *************************  -->
+	<!-- cfg.New_Configuration -->
+	<target name="cobol.cfg.New_Configuration" depends="init">
+		<cobol destdir="${basedir}/New_Configuration.bin" is64bit="false" threadedRts="true" forceCompile="${forceCompile}" failonerror="${cobolFailOnError}" debug="true" desttype="obj">
+			<mffilelist refid="cobol.copybook.locations"/>
+			<mfdirlist refid="cobol_directive_set_1"/>
+			<mffilelist refid="cobol_file_set_1"/>
+		</cobol>
+		<cobollink destdir="${basedir}/New_Configuration.bin" sharedRts="true" is64bit="false" threadedRts="true" entrypoint="" failonerror="${cobollinkFailOnError}" debug="true" desttype="exe" destfile="Cobol">
+			<mffilelist refid="cobol.default.object.files"/>
+		</cobollink>
+	</target>
+	<target name="New_Configuration.FileCompile" depends="init">
+		<ac:for list="${filesList}" param="filename" keepgoing="true" trim="true">
+			<sequential>
+				<ac:if>
+					<not>
+						<isset property="isCancelled"/>
+					</not>
+					<then>
+						<ac:antcallback target="FileCompile.New_Configuration.@{filename}" inheritAll="true" return="isCancelled">
+							<param name="filename" value="@{filename}"/>
+						</ac:antcallback>
+					</then>
+				</ac:if>
+			</sequential>
+		</ac:for>
+	</target>
+	<target name="pre.build.cfg.New_Configuration" depends="init">
+	</target>
+	<target name="post.build.cfg.New_Configuration" depends="init">
+	</target>
+	<target name="clean.cfg.New_Configuration" depends="init">
+		<delete dir="${basedir}/New_Configuration.bin"/>
+	</target>
+	<!--  *******************  -->
+	<!--  * General targets *  -->
+	<!--  *******************  -->
+	<target name="init.New_Configuration" if="isNew_Configuration">
+		<property name="cfgtargetdir" value="New_Configuration.bin"/>
+	</target>
+	<target name="init" depends="os.init,os.init.windows,os.init.unix">
+		<property environment="env"/>
+		<property name="Cobol" value="${basedir}"/>
+		<property name="cfg" value="New_Configuration"/>
+		<property name="cfgtarget" value="cfg.${cfg}"/>
+		<property name="forceCompile" value="true"/>
+		<condition property="isNew_Configuration">
+			<equals arg1="${cfg}" arg2="New_Configuration"/>
+		</condition>
+		<property name="pathVar.ECLIPSE_HOME" value="${env.ECLIPSE_HOME}"/>
+		<property name="pathVar.PARENT_LOC" value="${env.PARENT_LOC}"/>
+		<property name="pathVar.WORKSPACE_LOC" value="${env.WORKSPACE_LOC}"/>
+		<property name="pathVar.PROJECT_LOC" value="${env.PROJECT_LOC}"/>
+	</target>
+	<target name="init.all.configurations" depends="init.New_Configuration">
+	</target>
+	<target name="clean" depends="init,init.all.configurations">
+		<antcall target="clean.${cfgtarget}" inheritAll="true"/>
+	</target>
+	<target name="compileNoBms" depends="init,init.all.configurations">
+		<antcall target="${cfg}.FileCompile" inheritAll="true"/>
+	</target>
+	<target name="compile" depends="compileNoBms">
+	</target>
+	<target name="cobolbuild" depends="init,init.all.configurations">
+		<antcall target="pre.build.${cfgtarget}" inheritAll="true"/>
+		<antcall target="cobol.${cfgtarget}" inheritAll="true"/>
+		<antcall target="post.build.${cfgtarget}" inheritAll="true"/>
+	</target>
+</project>
