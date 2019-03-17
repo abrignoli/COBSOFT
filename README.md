@@ -16,8 +16,6 @@ Apresentação do projeto: COBSOFT.PPTX
 
 ## Desenvolvimento: 
 
-Adrian Luís Brignoli
-Eduarda Nogueira
-Lucas Soares
+Adrian Luís Brignoli, Eduarda Nogueira e Lucas Soares
 
 [COBSOFT]: https://drive.google.com/open?id=1cviHFDJWy9yRBPjS2N1fP0hdCA5rTlY0
